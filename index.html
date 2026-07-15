@@ -328,7 +328,7 @@
   <div class="cards" id="cards"></div>
   <div id="emptyState" class="empty" style="display:none;">No results yet. Pick a region and category, then hit Scan.</div>
 
-  <div class="disclaimer">AI-generated from general knowledge (not live web search) — always verify an account before reaching out.</div>
+  <div class="disclaimer">AI-generated from general knowledge (not live web search) — handles are best guesses. Always verify an account exists before reaching out.</div>
 </div>
 
 <button class="chat-toggle" id="chatToggle" aria-label="Open AI assistant">
@@ -526,7 +526,7 @@ async function runScan(){
   }
 
   try{
-    const prompt = `Based on your knowledge, list 6-8 real Instagram accounts (brands, boutiques, or businesses) based in ${region === 'All Pakistan' ? 'Pakistan' : region + ', Pakistan'} in the "${category}" category that are known to offer PR packages / collaborations / gifting to influencers in exchange for content. For each, give: name, instagram handle (with @), and a short note (max 15 words) on what they offer or why they're relevant. Return ONLY a raw JSON array, no markdown fences, no prose, in this exact shape: [{"name":"...","handle":"...","note":"..."}]. If you genuinely don't know any real ones for this combination, return an empty array [] rather than inventing names.`;
+    const prompt = `List 6-8 real, well-known Pakistani brands, boutiques, or businesses (ideally based in or serving ${region === 'All Pakistan' ? 'Pakistan' : region + ', Pakistan'}) in the "${category}" category that are active on Instagram and commonly known for working with influencers, doing collabs, or sending PR/gifting packages — this can include brands generally known for influencer marketing in Pakistan even if you're not certain of a specific current offer. For each, give: name, your best guess at their Instagram handle (with @, formatted as how a Pakistani brand in this category would typically name their account), and a short note (max 15 words) on why they're relevant to PR/collabs. Only include real brands you actually know of — do not invent brand names. Return ONLY a raw JSON array, no markdown fences, no prose, in this exact shape: [{"name":"...","handle":"...","note":"..."}]. Only return an empty array [] if you truly cannot think of any real, known brands in this category.`;
 
     const resp = await fetch(API_URL, {
       method: "POST",
