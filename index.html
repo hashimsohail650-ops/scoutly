@@ -328,7 +328,7 @@
   <div class="cards" id="cards"></div>
   <div id="emptyState" class="empty" style="display:none;">No results yet. Pick a region and category, then hit Scan.</div>
 
-  <div class="disclaimer">AI-found results based on public web info. Always verify an account before reaching out.</div>
+  <div class="disclaimer">AI-generated from general knowledge (not live web search) — always verify an account before reaching out.</div>
 </div>
 
 <button class="chat-toggle" id="chatToggle" aria-label="Open AI assistant">
@@ -526,7 +526,7 @@ async function runScan(){
   }
 
   try{
-    const prompt = `Find 6-8 real Instagram accounts (brands, boutiques, or businesses) based in ${region === 'All Pakistan' ? 'Pakistan' : region + ', Pakistan'} in the "${category}" category that are currently or recently known to offer PR packages / collaborations / gifting to influencers in exchange for content. Use web search to find real, current information — brand websites, influencer marketing roundups, blog posts, Instagram bios mentioning "PR", "collab", "gifting", etc. For each, give: name, instagram handle (with @), and a short note (max 15 words) on what they offer or why they're relevant. Return ONLY a raw JSON array, no markdown fences, no prose, in this exact shape: [{"name":"...","handle":"...","note":"..."}]. If you truly cannot find real ones, return an empty array [].`;
+    const prompt = `Based on your knowledge, list 6-8 real Instagram accounts (brands, boutiques, or businesses) based in ${region === 'All Pakistan' ? 'Pakistan' : region + ', Pakistan'} in the "${category}" category that are known to offer PR packages / collaborations / gifting to influencers in exchange for content. For each, give: name, instagram handle (with @), and a short note (max 15 words) on what they offer or why they're relevant. Return ONLY a raw JSON array, no markdown fences, no prose, in this exact shape: [{"name":"...","handle":"...","note":"..."}]. If you genuinely don't know any real ones for this combination, return an empty array [] rather than inventing names.`;
 
     const resp = await fetch(API_URL, {
       method: "POST",
@@ -534,15 +534,10 @@ async function runScan(){
       body: JSON.stringify({
         model: MODEL,
         max_tokens: 1000,
-        messages: [{ role: "user", content: prompt }],
-        tools: [{ type: "web_search_20250305", name: "web_search" }]
+        messages: [{ role: "user", content: prompt }]
       })
     });
     const data = await resp.json();
-    console.log('Scan API response:', data);
-    if(data.error){
-      throw new Error(typeof data.error === 'string' ? data.error : (data.error.message || JSON.stringify(data.error)));
-    }
     const text = (data.content || []).map(b => b.type === 'text' ? b.text : '').join('\n');
     const clean = text.replace(/```json|```/g, '').trim();
     const jsonMatch = clean.match(/\[[\s\S]*\]/);
@@ -551,11 +546,10 @@ async function runScan(){
     await setCached(cacheKey, { ts: Date.now(), items });
     renderResults(items, region, category, false);
   }catch(e){
-    console.error('Scan error:', e);
     cardsEl.innerHTML = '';
     resultsMeta.classList.remove('show');
     emptyState.style.display = 'block';
-    emptyState.textContent = "Error: " + (e.message || 'Something went wrong. Try again in a moment.');
+    emptyState.textContent = "Couldn't complete the scan. Try again in a moment.";
   }finally{
     radarZone.classList.remove('show');
     scanBtn.disabled = false;
@@ -663,18 +657,13 @@ async function sendChat(){
       })
     });
     const data = await resp.json();
-    console.log('Chat API response:', data);
-    if(data.error){
-      throw new Error(typeof data.error === 'string' ? data.error : (data.error.message || JSON.stringify(data.error)));
-    }
     const reply = (data.content || []).map(b => b.type === 'text' ? b.text : '').join('\n').trim() || "Sorry, I couldn't process that — try again?";
     typing.remove();
     addMsg('ai', reply);
     chatHistory.push({ role: "assistant", content: reply });
   }catch(e){
-    console.error('Chat error:', e);
     typing.remove();
-    addMsg('ai', "Error: " + (e.message || 'Something went wrong reaching the AI — please try again.'));
+    addMsg('ai', "Something went wrong reaching the AI — please try again.");
   }
 }
 </script>
