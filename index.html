@@ -539,6 +539,10 @@ async function runScan(){
       })
     });
     const data = await resp.json();
+    console.log('Scan API response:', data);
+    if(data.error){
+      throw new Error(typeof data.error === 'string' ? data.error : (data.error.message || JSON.stringify(data.error)));
+    }
     const text = (data.content || []).map(b => b.type === 'text' ? b.text : '').join('\n');
     const clean = text.replace(/```json|```/g, '').trim();
     const jsonMatch = clean.match(/\[[\s\S]*\]/);
@@ -547,10 +551,11 @@ async function runScan(){
     await setCached(cacheKey, { ts: Date.now(), items });
     renderResults(items, region, category, false);
   }catch(e){
+    console.error('Scan error:', e);
     cardsEl.innerHTML = '';
     resultsMeta.classList.remove('show');
     emptyState.style.display = 'block';
-    emptyState.textContent = "Couldn't complete the scan. Try again in a moment.";
+    emptyState.textContent = "Error: " + (e.message || 'Something went wrong. Try again in a moment.');
   }finally{
     radarZone.classList.remove('show');
     scanBtn.disabled = false;
@@ -658,13 +663,18 @@ async function sendChat(){
       })
     });
     const data = await resp.json();
+    console.log('Chat API response:', data);
+    if(data.error){
+      throw new Error(typeof data.error === 'string' ? data.error : (data.error.message || JSON.stringify(data.error)));
+    }
     const reply = (data.content || []).map(b => b.type === 'text' ? b.text : '').join('\n').trim() || "Sorry, I couldn't process that — try again?";
     typing.remove();
     addMsg('ai', reply);
     chatHistory.push({ role: "assistant", content: reply });
   }catch(e){
+    console.error('Chat error:', e);
     typing.remove();
-    addMsg('ai', "Something went wrong reaching the AI — please try again.");
+    addMsg('ai', "Error: " + (e.message || 'Something went wrong reaching the AI — please try again.'));
   }
 }
 </script>
