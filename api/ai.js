@@ -5,8 +5,7 @@
 
 // Model name is set via an environment variable so if Google renames/retires this
 // model later, you fix it in Vercel's dashboard — no code edit or redeploy of code needed.
-const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
-
+const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-flash-latest";
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
