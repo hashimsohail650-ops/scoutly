@@ -661,7 +661,7 @@ async function sendChat(){
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         model: MODEL,
-        max_tokens: 1000,
+        max_tokens: 2000,
         system: "You are a friendly, practical assistant inside 'Scoutly', a tool that helps Pakistani Instagram influencers find PR/collab opportunities. Give short, direct, useful answers (2-5 sentences typically). You can suggest search strategies, pitch wording, negotiation tips, and general influencer-marketing advice for the Pakistani market.",
         messages: apiMessages
       })
